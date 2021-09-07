@@ -11,6 +11,7 @@ spec:
     metadata:
       annotations:
         autoscaling.knative.dev/scaleDownDelay: "1m"
+        networking.knative.dev/visibility: cluster-local
       labels:
         app: amplitude
         app.kubernetes.io/part-of: api

@@ -1,0 +1,48 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  labels:
+    app: amplitude
+    app.kubernetes.io/part-of: api
+  name: amplitude
+  namespace: api
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/scaleDownDelay: "1m"
+      labels:
+        app: amplitude
+        app.kubernetes.io/part-of: api
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: spot
+                operator: In
+                values:
+                - 'true'
+            weight: 1
+      containers:
+      - name: amplitude
+        image: presalytics/amplitude:master
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "125m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Production
+        - name: AMPLITUTDE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: amplitude
+              key: api-key
+        ports:
+          - containerPort: 80
